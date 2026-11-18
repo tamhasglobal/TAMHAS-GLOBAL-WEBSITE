@@ -198,3 +198,38 @@ footer p {
     padding: 60px 20px;
   }
 }
+/* TAMHAS GLOBAL GROUP LOGO */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 19px;
+}
+
+.logo img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .logo {
+    font-size: 15px;
+  }
+
+  .logo img {
+    width: 45px;
+    height: 45px;
+  }
+}
