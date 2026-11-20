@@ -17,7 +17,6 @@
 
 <body>
 
-  <!-- Header -->
   <header class="header">
     <a class="brand" href="#home">
       <img src="logo.png" alt="TAMHAS GLOBAL GROUP logo">
@@ -90,6 +89,9 @@
           and future business opportunities.
         </p>
       </div>
+
+      <!-- Published Content from Admin Dashboard -->
+      <div id="publishedContent" class="published-content" aria-live="polite"></div>
 
       <div class="info-grid">
 
@@ -173,9 +175,7 @@
     <section class="section" id="projects">
       <div class="section-heading">
         <span class="eyebrow">OUR WORK IN PROGRESS</span>
-
         <h2>Ideas Into <span>Possibilities.</span></h2>
-
         <p>Explore the direction of our developing digital projects.</p>
       </div>
 
@@ -183,7 +183,6 @@
 
         <article class="project-card">
           <div class="project-art">TG<span>01</span></div>
-
           <div class="project-copy">
             <small>PROJECT 01 • DEVELOPMENT</small>
             <h3>TAMHAS AI Assistant</h3>
@@ -194,7 +193,6 @@
 
         <article class="project-card">
           <div class="project-art project-art-two">TG<span>02</span></div>
-
           <div class="project-copy">
             <small>PROJECT 02 • DEVELOPMENT</small>
             <h3>TG Messenger</h3>
@@ -210,9 +208,7 @@
     <section class="business-section" id="business">
       <div>
         <span class="eyebrow">LET'S BUILD THE FUTURE</span>
-
         <h2>Have an idea?<br><span>Let's explore it.</span></h2>
-
         <p>
           We welcome genuine inquiries, collaboration ideas
           and conversations about future opportunities.
@@ -229,9 +225,7 @@
 
       <div class="section-heading">
         <span class="eyebrow">GET IN TOUCH</span>
-
         <h2>Let's <span>Connect.</span></h2>
-
         <p>
           Have a question or business idea?
           Send a message to our customer support team.
@@ -241,57 +235,30 @@
       <form id="contactForm" class="contact-form">
 
         <label for="name">Your Name</label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          placeholder="Enter your name"
-          maxlength="100"
-          required
-        >
+        <input id="name" name="name" type="text"
+          placeholder="Enter your name" maxlength="100" required>
 
         <label for="email">Your Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="Enter your email"
-          maxlength="150"
-          required
-        >
+        <input id="email" name="email" type="email"
+          placeholder="Enter your email" maxlength="150" required>
 
         <label for="subject">Subject</label>
-        <input
-          id="subject"
-          name="subject"
-          type="text"
+        <input id="subject" name="subject" type="text"
           placeholder="What would you like to discuss?"
-          maxlength="150"
-          required
-        >
+          maxlength="150" required>
 
         <label for="message">Message</label>
-        <textarea
-          id="message"
-          name="message"
-          rows="5"
-          placeholder="Write your message..."
-          maxlength="5000"
-          required
-        ></textarea>
+        <textarea id="message" name="message" rows="5"
+          placeholder="Write your message..." maxlength="5000"
+          required></textarea>
 
         <button class="btn btn-primary" type="submit">
           Send Message ↗
         </button>
 
-        <p
-  class="form-note"
-  id="formNote"
-  role="status"
-  aria-live="polite"
->
-  Your message will be sent to our customer support team.
-  A confirmation email will be sent to your email address.
+        <p class="form-note" id="formNote" role="status" aria-live="polite">
+          Your message will be sent to our customer support team.
+          A confirmation email will be sent to your email address.
         </p>
 
       </form>
@@ -327,13 +294,15 @@
 
   </footer>
 
-  <!-- Back to Top -->
   <button id="backToTop" class="back-top" aria-label="Back to top">
     ↑
   </button>
 
-  <!-- EmailJS Library -->
+  <!-- EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Website JavaScript -->
   <script src="script.js"></script>
