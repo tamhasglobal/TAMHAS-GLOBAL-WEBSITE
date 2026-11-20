@@ -1,4 +1,3 @@
-
 /* =========================================
    TAMHAS GLOBAL GROUP
    Website JavaScript + EmailJS + Supabase
@@ -6,24 +5,32 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  // EMAILJS CONFIGURATION
+  // =====================================
+  // CONFIGURATION
+  // =====================================
+
   const EMAILJS_PUBLIC_KEY = "4l8JZR0nckc8DrU0s";
   const EMAILJS_SERVICE_ID = "service_nxfdbf4";
   const CONTACT_TEMPLATE_ID = "template_8ketbrm";
   const AUTOREPLY_TEMPLATE_ID = "template_4ieothw";
 
-  // SUPABASE CONFIGURATION
   const SUPABASE_URL = "https://wthpnjaejgxvxdwwasru.supabase.co";
   const SUPABASE_KEY = "sb_publishable_Hu3Z832uD274dCVfQaIV5Q_c7bHcWzv";
 
+  // =====================================
   // CURRENT YEAR
+  // =====================================
+
   const year = document.getElementById("year");
 
   if (year) {
     year.textContent = new Date().getFullYear();
   }
 
+  // =====================================
   // MOBILE NAVIGATION
+  // =====================================
+
   const menuToggle = document.getElementById("menuToggle");
   const nav = document.getElementById("nav");
 
@@ -52,7 +59,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
 
+  // =====================================
   // BACK TO TOP
+  // =====================================
+
   const backToTop = document.getElementById("backToTop");
 
   if (backToTop) {
@@ -74,23 +84,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
 
-  // SUPABASE: PUBLISHED WEBSITE CONTENT
+  // =====================================
+  // SUPABASE CONFIGURATION
+  // =====================================
+
   const publishedContent = document.getElementById("publishedContent");
+
+  let supabaseClient = null;
+
+  if (window.supabase) {
+
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  }
+
+  // =====================================
+  // LOAD PUBLISHED WEBSITE CONTENT
+  // =====================================
 
   async function loadPublishedContent() {
 
     if (!publishedContent) return;
 
+    publishedContent.textContent = "Loading content...";
+
     try {
 
-      if (!window.supabase) {
-        throw new Error("Supabase library not loaded.");
+      if (!supabaseClient) {
+        throw new Error("Supabase library is not available.");
       }
-
-      const supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
 
       const { data, error } = await supabaseClient
         .from("site_content")
@@ -114,7 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
         article.className = "published-content-card";
 
         const heading = document.createElement("h3");
-        heading.textContent = item.title || "";
+        heading.textContent = item.title || "Untitled";
 
         const paragraph = document.createElement("p");
         paragraph.textContent = item.content || "";
@@ -139,7 +164,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   loadPublishedContent();
 
-  // CONTACT FORM + AUTOMATIC REPLY
+  // =====================================
+  // EMAILJS INITIALIZATION
+  // =====================================
+
+  let emailJSInitialized = false;
+
+  function initializeEmailJS() {
+
+    if (!window.emailjs) {
+      throw new Error("EmailJS SDK is not loaded.");
+    }
+
+    if (!emailJSInitialized) {
+
+      window.emailjs.init({
+        publicKey: EMAILJS_PUBLIC_KEY
+      });
+
+      emailJSInitialized = true;
+
+    }
+
+  }
+
+  // =====================================
+  // CONTACT FORM + AUTO REPLY
+  // =====================================
+
   const contactForm = document.getElementById("contactForm");
   const formNote = document.getElementById("formNote");
 
@@ -167,13 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
 
-        if (!window.emailjs) {
-          throw new Error("EmailJS SDK is not loaded.");
-        }
-
-        window.emailjs.init({
-          publicKey: EMAILJS_PUBLIC_KEY
-        });
+        initializeEmailJS();
 
         // SEND MESSAGE TO SUPPORT
         await window.emailjs.sendForm(
@@ -182,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
           contactForm
         );
 
-        // AUTOMATIC CUSTOMER REPLY
+        // SEND AUTOMATIC CUSTOMER REPLY
         try {
 
           await window.emailjs.sendForm(
@@ -230,13 +276,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
 
+  // =====================================
   // SMOOTH ANCHOR NAVIGATION
+  // =====================================
+
   document.querySelectorAll('a[href^="#"]').forEach(function (link) {
 
     link.addEventListener("click", function (event) {
 
       const targetId = link.getAttribute("href");
-      const target = document.querySelector(targetId);
+
+      let target = null;
+
+      try {
+        target = document.querySelector(targetId);
+      } catch (error) {
+        console.warn("Invalid navigation target:", targetId);
+      }
 
       if (target) {
 
@@ -253,7 +309,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   });
 
+  // =====================================
   // REVEAL ANIMATION
+  // =====================================
+
   const revealElements = document.querySelectorAll(
     ".section-heading, .info-card, .service-card, .project-card, .business-section"
   );
