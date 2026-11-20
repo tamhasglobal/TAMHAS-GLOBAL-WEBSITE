@@ -1,32 +1,20 @@
-// TAMHAS GLOBAL GROUP - Website interactions
+/* =========================================
+   TAMHAS GLOBAL GROUP
+   Website JavaScript + EmailJS
+========================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  // EmailJS Configuration
-  const EMAILJS_PUBLIC_KEY = "4l8JZR0nckc8DrU0s";
-  const EMAILJS_SERVICE_ID = "service_nxfdbf4";
-  const EMAILJS_TEMPLATE_ID = "template_8ketbrm";
-
-  // Current year
-  const year = document.getElementById("year");
-  if (year) {
-    year.textContent = new Date().getFullYear();
-// TAMHAS GLOBAL GROUP - Website interactions
-
-document.addEventListener("DOMContentLoaded", function () {
-
-  // EmailJS Configuration
+  // EMAILJS CONFIGURATION
   const EMAILJS_PUBLIC_KEY = "4l8JZR0nckc8DrU0s";
   const EMAILJS_SERVICE_ID = "service_nxfdbf4";
 
-  // Contact Us Template
-  const EMAILJS_CONTACT_TEMPLATE = "template_8ketbrm";
-
-  // Automatic Reply Template
-  const EMAILJS_AUTOREPLY_TEMPLATE = "template_4ieothw";
+  // Two EmailJS Template IDs
+  const CONTACT_TEMPLATE_ID = "template_8ketbrm";
+  const AUTOREPLY_TEMPLATE_ID = "template_4ieothw";
 
 
-  // Current year
+  // CURRENT YEAR
   const year = document.getElementById("year");
 
   if (year) {
@@ -34,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  // Mobile navigation
+  // MOBILE NAVIGATION
   const menuToggle = document.getElementById("menuToggle");
   const nav = document.getElementById("nav");
 
@@ -64,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  // Back to top button
+  // BACK TO TOP
   const backToTop = document.getElementById("backToTop");
 
   if (backToTop) {
@@ -87,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  // Contact form with Automatic Reply
+  // CONTACT FORM + AUTOMATIC REPLY
   const contactForm = document.getElementById("contactForm");
   const formNote = document.getElementById("formNote");
 
@@ -97,52 +85,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
       event.preventDefault();
 
-      if (!contactForm.reportValidity()) return;
+      if (!contactForm.reportValidity()) {
+        return;
+      }
 
       const submitButton = contactForm.querySelector(
         'button[type="submit"], input[type="submit"]'
       );
 
-      if (formNote) {
-        formNote.textContent = "Sending your message...";
-      }
-
       if (submitButton) {
         submitButton.disabled = true;
       }
 
+      if (formNote) {
+        formNote.textContent = "Sending your message...";
+      }
+
       try {
 
+        // CHECK EMAILJS
         if (!window.emailjs) {
           throw new Error("EmailJS SDK is not loaded.");
         }
 
-        // Step 1: Send message to TAMHAS Support Gmail
+        // INITIALIZE EMAILJS
+        window.emailjs.init({
+          publicKey: EMAILJS_PUBLIC_KEY
+        });
+
+        // STEP 1: SEND MESSAGE TO SUPPORT GMAIL
         await window.emailjs.sendForm(
           EMAILJS_SERVICE_ID,
-          EMAILJS_CONTACT_TEMPLATE,
-          contactForm,
-          EMAILJS_PUBLIC_KEY
+          CONTACT_TEMPLATE_ID,
+          contactForm
         );
 
-        // Step 2: Send automatic reply to the customer
+        // STEP 2: SEND AUTOMATIC REPLY TO CUSTOMER
         try {
 
           await window.emailjs.sendForm(
             EMAILJS_SERVICE_ID,
-            EMAILJS_AUTOREPLY_TEMPLATE,
-            contactForm,
-            EMAILJS_PUBLIC_KEY
+            AUTOREPLY_TEMPLATE_ID,
+            contactForm
           );
 
           if (formNote) {
             formNote.textContent =
-              "Thank you! Your message has been received. A confirmation email has been sent to you.";
+              "Thank you! Your message has been received. A confirmation email has been sent to your email address.";
           }
 
         } catch (replyError) {
 
-          console.error("Automatic reply error:", replyError);
+          console.error("Automatic Reply Error:", replyError);
 
           if (formNote) {
             formNote.textContent =
@@ -155,11 +149,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       } catch (error) {
 
-        console.error("EmailJS error:", error);
+        console.error("Contact Form Error:", error);
 
         if (formNote) {
           formNote.textContent =
-            "Sorry, your message could not be sent. Please try again later.";
+            "Sorry! Your message could not be sent. Please try again later.";
         }
 
       } finally {
@@ -175,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  // Smooth anchor navigation
+  // SMOOTH ANCHOR NAVIGATION
   document.querySelectorAll('a[href^="#"]').forEach(function (link) {
 
     link.addEventListener("click", function (event) {
@@ -199,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
 
-  // Reveal sections when scrolling
+  // REVEAL ANIMATION
   const revealElements = document.querySelectorAll(
     ".section-heading, .info-card, .service-card, .project-card, .business-section"
   );
