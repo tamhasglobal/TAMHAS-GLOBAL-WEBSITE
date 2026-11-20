@@ -1,6 +1,7 @@
+
 /* =========================================
    TAMHAS GLOBAL GROUP
-   Website JavaScript + EmailJS
+   Website JavaScript + EmailJS + Supabase
 ========================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -8,11 +9,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // EMAILJS CONFIGURATION
   const EMAILJS_PUBLIC_KEY = "4l8JZR0nckc8DrU0s";
   const EMAILJS_SERVICE_ID = "service_nxfdbf4";
-
-  // Two EmailJS Template IDs
   const CONTACT_TEMPLATE_ID = "template_8ketbrm";
   const AUTOREPLY_TEMPLATE_ID = "template_4ieothw";
 
+  // SUPABASE CONFIGURATION
+  const SUPABASE_URL = "https://wthpnjaejgxvxdwwasru.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_Hu3Z832uD274dCVfQaIV5Q_c7bHcWzv";
 
   // CURRENT YEAR
   const year = document.getElementById("year");
@@ -20,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (year) {
     year.textContent = new Date().getFullYear();
   }
-
 
   // MOBILE NAVIGATION
   const menuToggle = document.getElementById("menuToggle");
@@ -51,7 +52,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
 
-
   // BACK TO TOP
   const backToTop = document.getElementById("backToTop");
 
@@ -74,6 +74,70 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
 
+  // SUPABASE: PUBLISHED WEBSITE CONTENT
+  const publishedContent = document.getElementById("publishedContent");
+
+  async function loadPublishedContent() {
+
+    if (!publishedContent) return;
+
+    try {
+
+      if (!window.supabase) {
+        throw new Error("Supabase library not loaded.");
+      }
+
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+      const { data, error } = await supabaseClient
+        .from("site_content")
+        .select("id, slug, title, content, updated_at")
+        .eq("is_published", true)
+        .order("updated_at", { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      publishedContent.replaceChildren();
+
+      if (!data || data.length === 0) {
+        return;
+      }
+
+      data.forEach(function (item) {
+
+        const article = document.createElement("article");
+        article.className = "published-content-card";
+
+        const heading = document.createElement("h3");
+        heading.textContent = item.title || "";
+
+        const paragraph = document.createElement("p");
+        paragraph.textContent = item.content || "";
+
+        article.appendChild(heading);
+        article.appendChild(paragraph);
+
+        publishedContent.appendChild(article);
+
+      });
+
+    } catch (error) {
+
+      console.error("Published Content Error:", error);
+
+      publishedContent.textContent =
+        "Published content is temporarily unavailable.";
+
+    }
+
+  }
+
+  loadPublishedContent();
 
   // CONTACT FORM + AUTOMATIC REPLY
   const contactForm = document.getElementById("contactForm");
@@ -103,24 +167,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
 
-        // CHECK EMAILJS
         if (!window.emailjs) {
           throw new Error("EmailJS SDK is not loaded.");
         }
 
-        // INITIALIZE EMAILJS
         window.emailjs.init({
           publicKey: EMAILJS_PUBLIC_KEY
         });
 
-        // STEP 1: SEND MESSAGE TO SUPPORT GMAIL
+        // SEND MESSAGE TO SUPPORT
         await window.emailjs.sendForm(
           EMAILJS_SERVICE_ID,
           CONTACT_TEMPLATE_ID,
           contactForm
         );
 
-        // STEP 2: SEND AUTOMATIC REPLY TO CUSTOMER
+        // AUTOMATIC CUSTOMER REPLY
         try {
 
           await window.emailjs.sendForm(
@@ -168,7 +230,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }
 
-
   // SMOOTH ANCHOR NAVIGATION
   document.querySelectorAll('a[href^="#"]').forEach(function (link) {
 
@@ -191,7 +252,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
   });
-
 
   // REVEAL ANIMATION
   const revealElements = document.querySelectorAll(
