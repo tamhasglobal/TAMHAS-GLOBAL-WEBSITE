@@ -1,3 +1,4 @@
+
 /* =========================================
    TAMHAS GLOBAL GROUP
    Website JavaScript + EmailJS + Supabase
@@ -189,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =====================================
-  // CONTACT FORM + AUTO REPLY
+  // CONTACT FORM + SUPABASE + EMAILJS
   // =====================================
 
   const contactForm = document.getElementById("contactForm");
@@ -214,46 +215,113 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (formNote) {
-        formNote.textContent = "Sending your message...";
+        formNote.textContent = "Saving your message...";
       }
+
+      // GET FORM VALUES
+
+      const formData = new FormData(contactForm);
+
+      const name = String(formData.get("name") || "").trim();
+      const email = String(formData.get("email") || "").trim();
+      const subject = String(formData.get("subject") || "").trim();
+      const message = String(formData.get("message") || "").trim();
 
       try {
 
-        initializeEmailJS();
+        // CHECK SUPABASE
 
-        // SEND MESSAGE TO SUPPORT
-        await window.emailjs.sendForm(
-          EMAILJS_SERVICE_ID,
-          CONTACT_TEMPLATE_ID,
-          contactForm
-        );
+        if (!supabaseClient) {
+          throw new Error("Supabase is not available.");
+        }
 
-        // SEND AUTOMATIC CUSTOMER REPLY
+        // SAVE MESSAGE TO SUPABASE
+
+        const { error: databaseError } = await supabaseClient
+          .from("messages")
+          .insert({
+            name: name,
+            email: email,
+            subject: subject,
+            message: message
+          });
+
+        if (databaseError) {
+          throw databaseError;
+        }
+
+        // MESSAGE IS NOW SAVED IN DATABASE
+
+        if (formNote) {
+          formNote.textContent =
+            "Your message has been saved. Sending notification email...";
+        }
+
+        // RESET FORM AFTER DATABASE SAVE
+        // This prevents accidental duplicate submissions
+        contactForm.reset();
+
+        // SEND EMAIL TO SUPPORT
+
         try {
+
+          initializeEmailJS();
 
           await window.emailjs.sendForm(
             EMAILJS_SERVICE_ID,
-            AUTOREPLY_TEMPLATE_ID,
+            CONTACT_TEMPLATE_ID,
             contactForm
+          );
+
+        } catch (supportEmailError) {
+
+          console.error(
+            "Support Email Error:",
+            supportEmailError
           );
 
           if (formNote) {
             formNote.textContent =
-              "Thank you! Your message has been received. A confirmation email has been sent to your email address.";
+              "Your message was saved successfully in our system, but the support notification email could not be sent.";
+          }
+
+          return;
+
+        }
+
+        // SEND AUTOMATIC CUSTOMER REPLY
+
+        try {
+
+          await window.emailjs.send(
+            EMAILJS_SERVICE_ID,
+            AUTOREPLY_TEMPLATE_ID,
+            {
+              name: name,
+              email: email,
+              subject: subject,
+              message: message
+            }
+          );
+
+          if (formNote) {
+            formNote.textContent =
+              "Thank you! Your message has been received and saved successfully. A confirmation email has been sent to your email address.";
           }
 
         } catch (replyError) {
 
-          console.error("Automatic Reply Error:", replyError);
+          console.error(
+            "Automatic Reply Error:",
+            replyError
+          );
 
           if (formNote) {
             formNote.textContent =
-              "Your message was received successfully, but the confirmation email could not be sent.";
+              "Your message was saved and sent to our support team, but the confirmation email could not be sent.";
           }
 
         }
-
-        contactForm.reset();
 
       } catch (error) {
 
@@ -261,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (formNote) {
           formNote.textContent =
-            "Sorry! Your message could not be sent. Please try again later.";
+            "Sorry! Your message could not be saved. Please try again later.";
         }
 
       } finally {
