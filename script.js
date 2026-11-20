@@ -1,4 +1,3 @@
-
 /* =========================================
    TAMHAS GLOBAL GROUP
    Website JavaScript + EmailJS + Supabase
@@ -227,6 +226,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const subject = String(formData.get("subject") || "").trim();
       const message = String(formData.get("message") || "").trim();
 
+      // EMAIL TEMPLATE PARAMETERS
+
+      const templateParams = {
+        name: name,
+        email: email,
+        subject: subject,
+        message: message
+      };
+
       try {
 
         // CHECK SUPABASE
@@ -235,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
           throw new Error("Supabase is not available.");
         }
 
-        // SAVE MESSAGE TO SUPABASE
+        // SAVE MESSAGE TO DATABASE
 
         const { error: databaseError } = await supabaseClient
           .from("messages")
@@ -250,35 +258,30 @@ document.addEventListener("DOMContentLoaded", function () {
           throw databaseError;
         }
 
-        // MESSAGE IS NOW SAVED IN DATABASE
+        // DATABASE SAVE SUCCESS
 
         if (formNote) {
           formNote.textContent =
             "Your message has been saved. Sending notification email...";
         }
 
-        // RESET FORM AFTER DATABASE SAVE
-        // This prevents accidental duplicate submissions
-        contactForm.reset();
-
-        // SEND EMAIL TO SUPPORT
+        // SEND SUPPORT EMAIL
 
         try {
 
           initializeEmailJS();
 
-          await window.emailjs.sendForm(
+          await window.emailjs.send(
             EMAILJS_SERVICE_ID,
             CONTACT_TEMPLATE_ID,
-            contactForm
+            templateParams
           );
 
         } catch (supportEmailError) {
 
-          console.error(
-            "Support Email Error:",
-            supportEmailError
-          );
+          console.error("Support Email Error:", supportEmailError);
+
+          contactForm.reset();
 
           if (formNote) {
             formNote.textContent =
@@ -296,12 +299,7 @@ document.addEventListener("DOMContentLoaded", function () {
           await window.emailjs.send(
             EMAILJS_SERVICE_ID,
             AUTOREPLY_TEMPLATE_ID,
-            {
-              name: name,
-              email: email,
-              subject: subject,
-              message: message
-            }
+            templateParams
           );
 
           if (formNote) {
@@ -311,10 +309,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } catch (replyError) {
 
-          console.error(
-            "Automatic Reply Error:",
-            replyError
-          );
+          console.error("Automatic Reply Error:", replyError);
 
           if (formNote) {
             formNote.textContent =
@@ -322,6 +317,10 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
         }
+
+        // RESET FORM AFTER PROCESSING
+
+        contactForm.reset();
 
       } catch (error) {
 
