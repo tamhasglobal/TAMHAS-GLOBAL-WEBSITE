@@ -2,6 +2,11 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
+  // EmailJS Configuration
+  const EMAILJS_PUBLIC_KEY = "4l8JZR0nckc8DrU0s";
+  const EMAILJS_SERVICE_ID = "service_nxfdbf4";
+  const EMAILJS_TEMPLATE_ID = "template_8ketbrm";
+
   // Current year
   const year = document.getElementById("year");
   if (year) {
@@ -44,47 +49,59 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Contact form: prepare an email
+  // Contact form with EmailJS
   const contactForm = document.getElementById("contactForm");
   const formNote = document.getElementById("formNote");
 
   if (contactForm) {
-    contactForm.addEventListener("submit", function (event) {
+    contactForm.addEventListener("submit", async function (event) {
       event.preventDefault();
 
       if (!contactForm.reportValidity()) return;
 
-      const formData = new FormData(contactForm);
-      const name = formData.get("name");
-      const email = formData.get("email");
-      const subject = formData.get("subject");
-      const message = formData.get("message");
-
-      // Add the official business email here when available.
-      const businessEmail = "";
-
-      if (!businessEmail) {
-        if (formNote) {
-          formNote.textContent =
-            "Thank you! The form is ready, but the company's official email has not been configured yet.";
-        }
-        return;
-      }
-
-      const body =
-        "Name: " + name +
-        "\nEmail: " + email +
-        "\n\nMessage:\n" + message;
-
-      const mailto =
-        "mailto:" + businessEmail +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-
-      window.location.href = mailto;
+      const submitButton = contactForm.querySelector(
+        'button[type="submit"], input[type="submit"]'
+      );
 
       if (formNote) {
-        formNote.textContent = "Your email app should open with your message prepared.";
+        formNote.textContent = "Sending your message...";
+      }
+
+      if (submitButton) {
+        submitButton.disabled = true;
+      }
+
+      try {
+        if (!window.emailjs) {
+          throw new Error("EmailJS SDK is not loaded.");
+        }
+
+        await window.emailjs.sendForm(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          contactForm,
+          EMAILJS_PUBLIC_KEY
+        );
+
+        if (formNote) {
+          formNote.textContent =
+            "Thank you! Your message has been sent successfully.";
+        }
+
+        contactForm.reset();
+
+      } catch (error) {
+        console.error("EmailJS error:", error);
+
+        if (formNote) {
+          formNote.textContent =
+            "Sorry, your message could not be sent. Please try again later.";
+        }
+
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+        }
       }
     });
   }
